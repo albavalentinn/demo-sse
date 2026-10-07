@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo SSE - Streaming de IA</title>
+    <style>
+        body { font-family: system-ui, sans-serif; padding: 40px; background-color: #1e1e1e; color: #fff; }
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; background-color: #007acc; border: none; color: white; border-radius: 5px; }
+        button:hover { background-color: #005f9e; }
+        #output { margin-top: 20px; font-size: 1.5em; line-height: 1.6; min-height: 100px; padding: 20px; background-color: #2d2d2d; border-radius: 8px; }
+    </style>
+</head>
+<body>
+
+    <h2>Simulador de Streaming IA (SSE)</h2>
+    <button id="askBtn">Generar Respuesta</button>
+    <div id="output"></div>
+
+    <script>
+        const btn = document.getElementById('askBtn');
+        const output = document.getElementById('output');
+
+        btn.addEventListener('click', () => {
+            output.textContent = ""; // Limpiar pantalla
+            
+            // Conexión al endpoint SSE
+            const eventSource = new EventSource('/api/stream');
+
+            eventSource.onmessage = (event) => {
+                if (event.data === "[DONE]") {
+                    eventSource.close();
+                    return;
+                }
+                // Imprimir cada palabra recibida
+                output.textContent += event.data + " ";
+            };
+
+            eventSource.onerror = (error) => {
+                console.error("Error en SSE:", error);
+                eventSource.close();
+            };
+        });
+    </script>
+
+</body>
+</html>
